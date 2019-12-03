@@ -10,12 +10,14 @@ class TestModel(BaseModel):
         return 'TestModel'
 
     def __init__(self, opt):
-        assert(not opt.isTrain)
+        assert (not opt.isTrain)
         super(TestModel, self).__init__(opt)
-        self.input_A = self.Tensor(opt.batchSize, opt.input_nc, opt.fineSize, opt.fineSize)
+        self.input_A = self.Tensor(opt.batchSize, opt.input_nc, opt.fineSize,
+                                   opt.fineSize)
 
         self.netG = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf,
-                                      opt.which_model_netG, opt.norm, not opt.no_dropout, self.gpu_ids, False,
+                                      opt.which_model_netG, opt.norm,
+                                      not opt.no_dropout, self.gpu_ids, False,
                                       opt.learn_residual)
         which_epoch = opt.which_epoch
         self.load_network(self.netG, 'G', which_epoch)

@@ -5,6 +5,7 @@ import functools
 # from torch.autograd import Variable
 import numpy as np
 
+import pdb
 
 ###############################################################################
 # Functions
@@ -26,13 +27,23 @@ def get_norm_layer(norm_type='instance'):
     if norm_type == 'batch':
         norm_layer = functools.partial(nn.BatchNorm2d, affine=True)
     elif norm_type == 'instance':
-        norm_layer = functools.partial(nn.InstanceNorm2d, affine=False, track_running_stats=True)
+        norm_layer = functools.partial(nn.InstanceNorm2d,
+                                       affine=False,
+                                       track_running_stats=True)
     else:
-        raise NotImplementedError('normalization layer [%s] is not found' % norm_type)
+        raise NotImplementedError('normalization layer [%s] is not found' %
+                                  norm_type)
     return norm_layer
 
 
-def define_G(input_nc, output_nc, ngf, which_model_netG, norm='batch', use_dropout=False, gpu_ids=[], use_parallel=True,
+def define_G(input_nc,
+             output_nc,
+             ngf,
+             which_model_netG,
+             norm='batch',
+             use_dropout=False,
+             gpu_ids=[],
+             use_parallel=True,
              learn_residual=False):
     netG = None
     use_gpu = len(gpu_ids) > 0
@@ -41,42 +52,112 @@ def define_G(input_nc, output_nc, ngf, which_model_netG, norm='batch', use_dropo
     if use_gpu:
         assert (torch.cuda.is_available())
 
+    # pdb.set_trace()
+    # (Pdb) a
+    # input_nc = 3
+    # output_nc = 3
+    # ngf = 64
+    # which_model_netG = 'resnet_9blocks'
+    # norm = 'instance'
+    # use_dropout = True
+    # gpu_ids = [0]
+    # use_parallel = True
+    # learn_residual = True
+
     if which_model_netG == 'resnet_9blocks':
-        netG = ResnetGenerator(input_nc, output_nc, ngf, norm_layer=norm_layer, use_dropout=use_dropout, n_blocks=9,
-                               gpu_ids=gpu_ids, use_parallel=use_parallel, learn_residual=learn_residual)
+        netG = ResnetGenerator(input_nc,
+                               output_nc,
+                               ngf,
+                               norm_layer=norm_layer,
+                               use_dropout=use_dropout,
+                               n_blocks=9,
+                               gpu_ids=gpu_ids,
+                               use_parallel=use_parallel,
+                               learn_residual=learn_residual)
     elif which_model_netG == 'resnet_6blocks':
-        netG = ResnetGenerator(input_nc, output_nc, ngf, norm_layer=norm_layer, use_dropout=use_dropout, n_blocks=6,
-                               gpu_ids=gpu_ids, use_parallel=use_parallel, learn_residual=learn_residual)
+        netG = ResnetGenerator(input_nc,
+                               output_nc,
+                               ngf,
+                               norm_layer=norm_layer,
+                               use_dropout=use_dropout,
+                               n_blocks=6,
+                               gpu_ids=gpu_ids,
+                               use_parallel=use_parallel,
+                               learn_residual=learn_residual)
     elif which_model_netG == 'unet_128':
-        netG = UnetGenerator(input_nc, output_nc, 7, ngf, norm_layer=norm_layer, use_dropout=use_dropout,
-                             gpu_ids=gpu_ids, use_parallel=use_parallel, learn_residual=learn_residual)
+        netG = UnetGenerator(input_nc,
+                             output_nc,
+                             7,
+                             ngf,
+                             norm_layer=norm_layer,
+                             use_dropout=use_dropout,
+                             gpu_ids=gpu_ids,
+                             use_parallel=use_parallel,
+                             learn_residual=learn_residual)
     elif which_model_netG == 'unet_256':
-        netG = UnetGenerator(input_nc, output_nc, 8, ngf, norm_layer=norm_layer, use_dropout=use_dropout,
-                             gpu_ids=gpu_ids, use_parallel=use_parallel, learn_residual=learn_residual)
+        netG = UnetGenerator(input_nc,
+                             output_nc,
+                             8,
+                             ngf,
+                             norm_layer=norm_layer,
+                             use_dropout=use_dropout,
+                             gpu_ids=gpu_ids,
+                             use_parallel=use_parallel,
+                             learn_residual=learn_residual)
     else:
-        raise NotImplementedError('Generator model name [%s] is not recognized' % which_model_netG)
+        raise NotImplementedError(
+            'Generator model name [%s] is not recognized' % which_model_netG)
     if len(gpu_ids) > 0:
         netG.cuda(gpu_ids[0])
     netG.apply(weights_init)
     return netG
 
 
-def define_D(input_nc, ndf, which_model_netD, n_layers_D=3, norm='batch', use_sigmoid=False, gpu_ids=[],
+def define_D(input_nc,
+             ndf,
+             which_model_netD,
+             n_layers_D=3,
+             norm='batch',
+             use_sigmoid=False,
+             gpu_ids=[],
              use_parallel=True):
     netD = None
     use_gpu = len(gpu_ids) > 0
     norm_layer = get_norm_layer(norm_type=norm)
 
+    # pdb.set_trace()
+    # (Pdb) a
+    # input_nc = 3
+    # ndf = 64
+    # which_model_netD = 'basic'
+    # n_layers_D = 3
+    # norm = 'instance'
+    # use_sigmoid = True
+    # gpu_ids = [0]
+    # use_parallel = True
+
     if use_gpu:
         assert (torch.cuda.is_available())
     if which_model_netD == 'basic':
-        netD = NLayerDiscriminator(input_nc, ndf, n_layers=3, norm_layer=norm_layer, use_sigmoid=use_sigmoid,
-                                   gpu_ids=gpu_ids, use_parallel=use_parallel)
+        netD = NLayerDiscriminator(input_nc,
+                                   ndf,
+                                   n_layers=3,
+                                   norm_layer=norm_layer,
+                                   use_sigmoid=use_sigmoid,
+                                   gpu_ids=gpu_ids,
+                                   use_parallel=use_parallel)
     elif which_model_netD == 'n_layers':
-        netD = NLayerDiscriminator(input_nc, ndf, n_layers_D, norm_layer=norm_layer, use_sigmoid=use_sigmoid,
-                                   gpu_ids=gpu_ids, use_parallel=use_parallel)
+        netD = NLayerDiscriminator(input_nc,
+                                   ndf,
+                                   n_layers_D,
+                                   norm_layer=norm_layer,
+                                   use_sigmoid=use_sigmoid,
+                                   gpu_ids=gpu_ids,
+                                   use_parallel=use_parallel)
     else:
-        raise NotImplementedError('Discriminator model name [%s] is not recognized' % which_model_netD)
+        raise NotImplementedError(
+            'Discriminator model name [%s] is not recognized' %
+            which_model_netD)
     if use_gpu:
         netD.cuda(gpu_ids[0])
     netD.apply(weights_init)
@@ -101,11 +182,35 @@ def print_network(net):
 # Code and idea originally from Justin Johnson's architecture.
 # https://github.com/jcjohnson/fast-neural-style/
 class ResnetGenerator(nn.Module):
-    def __init__(
-            self, input_nc, output_nc, ngf=64, norm_layer=nn.BatchNorm2d, use_dropout=False,
-            n_blocks=6, gpu_ids=[], use_parallel=True, learn_residual=False, padding_type='reflect'):
+    def __init__(self,
+                 input_nc,
+                 output_nc,
+                 ngf=64,
+                 norm_layer=nn.BatchNorm2d,
+                 use_dropout=False,
+                 n_blocks=6,
+                 gpu_ids=[],
+                 use_parallel=True,
+                 learn_residual=False,
+                 padding_type='reflect'):
         assert (n_blocks >= 0)
         super(ResnetGenerator, self).__init__()
+
+        # pdb.set_trace()
+        # (Pdb) a
+        # self = ResnetGenerator()
+        # input_nc = 3
+        # output_nc = 3
+        # ngf = 64
+        # norm_layer = functools.partial(<class
+        #  'torch.nn.modules.instancenorm.InstanceNorm2d'>, affine=False, track_running_stats=True)
+        # use_dropout = True
+        # n_blocks = 9
+        # gpu_ids = [0]
+        # use_parallel = True
+        # learn_residual = True
+        # padding_type = 'reflect'
+
         self.input_nc = input_nc
         self.output_nc = output_nc
         self.ngf = ngf
@@ -129,20 +234,29 @@ class ResnetGenerator(nn.Module):
 
         # 下采样
         # for i in range(n_downsampling): # [0,1]
-        # 	mult = 2**i
+        #   mult = 2**i
         #
-        # 	model += [
-        # 		nn.Conv2d(ngf * mult, ngf * mult * 2, kernel_size=3, stride=2, padding=1, bias=use_bias),
-        # 		norm_layer(ngf * mult * 2),
-        # 		nn.ReLU(True)
-        # 	]
+        #   model += [
+        #       nn.Conv2d(ngf * mult, ngf * mult * 2, kernel_size=3, stride=2, padding=1, bias=use_bias),
+        #       norm_layer(ngf * mult * 2),
+        #       nn.ReLU(True)
+        #   ]
 
         model += [
-            nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1, bias=use_bias),
+            nn.Conv2d(64,
+                      128,
+                      kernel_size=3,
+                      stride=2,
+                      padding=1,
+                      bias=use_bias),
             norm_layer(128),
             nn.ReLU(True),
-
-            nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=1, bias=use_bias),
+            nn.Conv2d(128,
+                      256,
+                      kernel_size=3,
+                      stride=2,
+                      padding=1,
+                      bias=use_bias),
             norm_layer(256),
             nn.ReLU(True)
         ]
@@ -151,31 +265,46 @@ class ResnetGenerator(nn.Module):
         # mult = 2**n_downsampling
         for i in range(n_blocks):
             # model += [
-            # 	ResnetBlock(
-            # 		ngf * mult, padding_type=padding_type, norm_layer=norm_layer,
-            # 		use_dropout=use_dropout, use_bias=use_bias)
+            #   ResnetBlock(
+            #       ngf * mult, padding_type=padding_type, norm_layer=norm_layer,
+            #       use_dropout=use_dropout, use_bias=use_bias)
             # ]
             model += [
-                ResnetBlock(256, padding_type=padding_type, norm_layer=norm_layer, use_dropout=use_dropout, use_bias=use_bias)
+                ResnetBlock(256,
+                            padding_type=padding_type,
+                            norm_layer=norm_layer,
+                            use_dropout=use_dropout,
+                            use_bias=use_bias)
             ]
 
         # 上采样
         # for i in range(n_downsampling):
-        # 	mult = 2**(n_downsampling - i)
+        #   mult = 2**(n_downsampling - i)
         #
-        # 	model += [
-        # 		nn.ConvTranspose2d(
-        # 			ngf * mult, int(ngf * mult / 2), kernel_size=3, stride=2,
-        # 			padding=1, output_padding=1, bias=use_bias),
-        # 		norm_layer(int(ngf * mult / 2)),
-        # 		nn.ReLU(True)
-        # 	]
+        #   model += [
+        #       nn.ConvTranspose2d(
+        #           ngf * mult, int(ngf * mult / 2), kernel_size=3, stride=2,
+        #           padding=1, output_padding=1, bias=use_bias),
+        #       norm_layer(int(ngf * mult / 2)),
+        #       nn.ReLU(True)
+        #   ]
         model += [
-            nn.ConvTranspose2d(256, 128, kernel_size=3, stride=2, padding=1, output_padding=1, bias=use_bias),
+            nn.ConvTranspose2d(256,
+                               128,
+                               kernel_size=3,
+                               stride=2,
+                               padding=1,
+                               output_padding=1,
+                               bias=use_bias),
             norm_layer(128),
             nn.ReLU(True),
-
-            nn.ConvTranspose2d(128, 64, kernel_size=3, stride=2, padding=1, output_padding=1, bias=use_bias),
+            nn.ConvTranspose2d(128,
+                               64,
+                               kernel_size=3,
+                               stride=2,
+                               padding=1,
+                               output_padding=1,
+                               bias=use_bias),
             norm_layer(64),
             nn.ReLU(True),
         ]
@@ -189,7 +318,8 @@ class ResnetGenerator(nn.Module):
         self.model = nn.Sequential(*model)
 
     def forward(self, input):
-        if self.gpu_ids and isinstance(input.data, torch.cuda.FloatTensor) and self.use_parallel:
+        if self.gpu_ids and isinstance(
+                input.data, torch.cuda.FloatTensor) and self.use_parallel:
             output = nn.parallel.data_parallel(self.model, input, self.gpu_ids)
         else:
             output = self.model(input)
@@ -201,93 +331,102 @@ class ResnetGenerator(nn.Module):
 
 # Define a resnet block
 class ResnetBlock(nn.Module):
+    def __init__(self, dim, padding_type, norm_layer, use_dropout, use_bias):
+        super(ResnetBlock, self).__init__()
+        # pdb.set_trace()
+        # (Pdb) a
+        # self = ResnetBlock()
+        # dim = 256
+        # padding_type = 'reflect'
+        # norm_layer = functools.partial(<class 'torch.nn.modules.
+        #     instancenorm.InstanceNorm2d'>, affine=False, track_running_stats=True)
+        # use_dropout = True
+        # use_bias = True
 
-	def __init__(self, dim, padding_type, norm_layer, use_dropout, use_bias):
-		super(ResnetBlock, self).__init__()
-
-		padAndConv = {
-			'reflect': [
+        padAndConv = {
+            'reflect': [
                 nn.ReflectionPad2d(1),
-                nn.Conv2d(dim, dim, kernel_size=3, bias=use_bias)],
-			'replicate': [
+                nn.Conv2d(dim, dim, kernel_size=3, bias=use_bias)
+            ],
+            'replicate': [
                 nn.ReplicationPad2d(1),
-                nn.Conv2d(dim, dim, kernel_size=3, bias=use_bias)],
-			'zero': [
-                nn.Conv2d(dim, dim, kernel_size=3, padding=1, bias=use_bias)]
-		}
+                nn.Conv2d(dim, dim, kernel_size=3, bias=use_bias)
+            ],
+            'zero':
+            [nn.Conv2d(dim, dim, kernel_size=3, padding=1, bias=use_bias)]
+        }
 
-		try:
-			blocks = padAndConv[padding_type] + [
-				norm_layer(dim),
-				nn.ReLU(True)
-            ] + [
-				nn.Dropout(0.5)
-			] if use_dropout else [] + padAndConv[padding_type] + [
-				norm_layer(dim)
-			]
-		except:
-			raise NotImplementedError('padding [%s] is not implemented' % padding_type)
+        try:
+            blocks = padAndConv[padding_type] + [
+                norm_layer(dim), nn.ReLU(True)
+            ] + [nn.Dropout(0.5)
+                 ] if use_dropout else [] + padAndConv[padding_type] + [
+                     norm_layer(dim)
+                 ]
+        except:
+            raise NotImplementedError('padding [%s] is not implemented' %
+                                      padding_type)
 
-		self.conv_block = nn.Sequential(*blocks)
+        self.conv_block = nn.Sequential(*blocks)
 
-		# self.conv_block = self.build_conv_block(dim, padding_type, norm_layer, use_dropout, use_bias)
-		# def build_conv_block(self, dim, padding_type, norm_layer, use_dropout, use_bias):
-		#     padAndConv = {
-		#         'reflect': [nn.ReflectionPad2d(1), nn.Conv2d(dim, dim, kernel_size=3, bias=use_bias)],
-		#         'replicate': [nn.ReplicationPad2d(1), nn.Conv2d(dim, dim, kernel_size=3, bias=use_bias)],
-		#         'zero': [nn.Conv2d(dim, dim, kernel_size=3, padding=1, bias=use_bias)]
-		#     }
-		#     try:
-		#         blocks = [
-		#             padAndConv[padding_type],
-		#
-		#             norm_layer(dim),
-		#             nn.ReLU(True),
-		#             nn.Dropout(0.5) if use_dropout else None,
-		#
-		#             padAndConv[padding_type],
-		#
-		#             norm_layer(dim)
-		#         ]
-		#     except:
-		#         raise NotImplementedError('padding [%s] is not implemented' % padding_type)
-		#
-		#     return nn.Sequential(*blocks)
+        # self.conv_block = self.build_conv_block(dim, padding_type, norm_layer, use_dropout, use_bias)
+        # def build_conv_block(self, dim, padding_type, norm_layer, use_dropout, use_bias):
+        #     padAndConv = {
+        #         'reflect': [nn.ReflectionPad2d(1), nn.Conv2d(dim, dim, kernel_size=3, bias=use_bias)],
+        #         'replicate': [nn.ReplicationPad2d(1), nn.Conv2d(dim, dim, kernel_size=3, bias=use_bias)],
+        #         'zero': [nn.Conv2d(dim, dim, kernel_size=3, padding=1, bias=use_bias)]
+        #     }
+        #     try:
+        #         blocks = [
+        #             padAndConv[padding_type],
+        #
+        #             norm_layer(dim),
+        #             nn.ReLU(True),
+        #             nn.Dropout(0.5) if use_dropout else None,
+        #
+        #             padAndConv[padding_type],
+        #
+        #             norm_layer(dim)
+        #         ]
+        #     except:
+        #         raise NotImplementedError('padding [%s] is not implemented' % padding_type)
+        #
+        #     return nn.Sequential(*blocks)
 
-		# blocks = []
-		# if padding_type == 'reflect':
-		# 	blocks += [nn.ReflectionPad2d(1),  nn.Conv2d(dim, dim, kernel_size=3, bias=use_bias)]
-		# elif padding_type == 'replicate':
-		# 	blocks += [nn.ReplicationPad2d(1), nn.Conv2d(dim, dim, kernel_size=3, bias=use_bias)]
-		# elif padding_type == 'zero':
-		# 	blocks += [nn.Conv2d(dim, dim, kernel_size=3, padding=1, bias=use_bias)]
-		# else:
-		# 	raise NotImplementedError('padding [%s] is not implemented' % padding_type)
-		#
-		# blocks += [
-		# 	norm_layer(dim),
-		# 	nn.ReLU(True),
-		# 	nn.Dropout(0.5) if use_dropout else None
-		# ]
-		#
-		# if padding_type == 'reflect':
-		# 	blocks += [nn.ReflectionPad2d(1),  nn.Conv2d(dim, dim, kernel_size=3, bias=use_bias)]
-		# elif padding_type == 'replicate':
-		# 	blocks += [nn.ReplicationPad2d(1), nn.Conv2d(dim, dim, kernel_size=3, bias=use_bias)]
-		# elif padding_type == 'zero':
-		# 	blocks += [nn.Conv2d(dim, dim, kernel_size=3, padding=1, bias=use_bias)]
-		# else:
-		# 	raise NotImplementedError('padding [%s] is not implemented' % padding_type)
-		#
-		# blocks += [
-		# 	norm_layer(dim)
-		# ]
-		#
-		# return nn.Sequential(*blocks)
+        # blocks = []
+        # if padding_type == 'reflect':
+        #   blocks += [nn.ReflectionPad2d(1),  nn.Conv2d(dim, dim, kernel_size=3, bias=use_bias)]
+        # elif padding_type == 'replicate':
+        #   blocks += [nn.ReplicationPad2d(1), nn.Conv2d(dim, dim, kernel_size=3, bias=use_bias)]
+        # elif padding_type == 'zero':
+        #   blocks += [nn.Conv2d(dim, dim, kernel_size=3, padding=1, bias=use_bias)]
+        # else:
+        #   raise NotImplementedError('padding [%s] is not implemented' % padding_type)
+        #
+        # blocks += [
+        #   norm_layer(dim),
+        #   nn.ReLU(True),
+        #   nn.Dropout(0.5) if use_dropout else None
+        # ]
+        #
+        # if padding_type == 'reflect':
+        #   blocks += [nn.ReflectionPad2d(1),  nn.Conv2d(dim, dim, kernel_size=3, bias=use_bias)]
+        # elif padding_type == 'replicate':
+        #   blocks += [nn.ReplicationPad2d(1), nn.Conv2d(dim, dim, kernel_size=3, bias=use_bias)]
+        # elif padding_type == 'zero':
+        #   blocks += [nn.Conv2d(dim, dim, kernel_size=3, padding=1, bias=use_bias)]
+        # else:
+        #   raise NotImplementedError('padding [%s] is not implemented' % padding_type)
+        #
+        # blocks += [
+        #   norm_layer(dim)
+        # ]
+        #
+        # return nn.Sequential(*blocks)
 
-	def forward(self, x):
-		out = x + self.conv_block(x)
-		return out
+    def forward(self, x):
+        out = x + self.conv_block(x)
+        return out
 
 
 # Defines the Unet generator.
@@ -295,10 +434,19 @@ class ResnetBlock(nn.Module):
 # if |num_downs| == 7, image of size 128x128 will become of size 1x1
 # at the bottleneck
 class UnetGenerator(nn.Module):
-    def __init__(
-            self, input_nc, output_nc, num_downs, ngf=64, norm_layer=nn.BatchNorm2d,
-            use_dropout=False, gpu_ids=[], use_parallel=True, learn_residual=False):
+    def __init__(self,
+                 input_nc,
+                 output_nc,
+                 num_downs,
+                 ngf=64,
+                 norm_layer=nn.BatchNorm2d,
+                 use_dropout=False,
+                 gpu_ids=[],
+                 use_parallel=True,
+                 learn_residual=False):
         super(UnetGenerator, self).__init__()
+        pdb.set_trace()
+
         self.gpu_ids = gpu_ids
         self.use_parallel = use_parallel
         self.learn_residual = learn_residual
@@ -306,19 +454,39 @@ class UnetGenerator(nn.Module):
         assert (input_nc == output_nc)
 
         # construct unet structure
-        unet_block = UnetSkipConnectionBlock(ngf * 8, ngf * 8, norm_layer=norm_layer, innermost=True)
+        unet_block = UnetSkipConnectionBlock(ngf * 8,
+                                             ngf * 8,
+                                             norm_layer=norm_layer,
+                                             innermost=True)
         for i in range(num_downs - 5):
-            unet_block = UnetSkipConnectionBlock(ngf * 8, ngf * 8, unet_block, norm_layer=norm_layer,
+            unet_block = UnetSkipConnectionBlock(ngf * 8,
+                                                 ngf * 8,
+                                                 unet_block,
+                                                 norm_layer=norm_layer,
                                                  use_dropout=use_dropout)
-        unet_block = UnetSkipConnectionBlock(ngf * 4, ngf * 8, unet_block, norm_layer=norm_layer)
-        unet_block = UnetSkipConnectionBlock(ngf * 2, ngf * 4, unet_block, norm_layer=norm_layer)
-        unet_block = UnetSkipConnectionBlock(ngf, ngf * 2, unet_block, norm_layer=norm_layer)
-        unet_block = UnetSkipConnectionBlock(output_nc, ngf, unet_block, outermost=True, norm_layer=norm_layer)
+        unet_block = UnetSkipConnectionBlock(ngf * 4,
+                                             ngf * 8,
+                                             unet_block,
+                                             norm_layer=norm_layer)
+        unet_block = UnetSkipConnectionBlock(ngf * 2,
+                                             ngf * 4,
+                                             unet_block,
+                                             norm_layer=norm_layer)
+        unet_block = UnetSkipConnectionBlock(ngf,
+                                             ngf * 2,
+                                             unet_block,
+                                             norm_layer=norm_layer)
+        unet_block = UnetSkipConnectionBlock(output_nc,
+                                             ngf,
+                                             unet_block,
+                                             outermost=True,
+                                             norm_layer=norm_layer)
 
         self.model = unet_block
 
     def forward(self, input):
-        if self.gpu_ids and isinstance(input.data, torch.cuda.FloatTensor) and self.use_parallel:
+        if self.gpu_ids and isinstance(
+                input.data, torch.cuda.FloatTensor) and self.use_parallel:
             output = nn.parallel.data_parallel(self.model, input, self.gpu_ids)
         else:
             output = self.model(input)
@@ -332,73 +500,88 @@ class UnetGenerator(nn.Module):
 # X -------------------identity---------------------- X
 #   |-- downsampling -- |submodule| -- upsampling --|
 class UnetSkipConnectionBlock(nn.Module):
-    def __init__(
-            self, outer_nc, inner_nc, submodule=None,
-            outermost=False, innermost=False, norm_layer=nn.BatchNorm2d, use_dropout=False):
+    def __init__(self,
+                 outer_nc,
+                 inner_nc,
+                 submodule=None,
+                 outermost=False,
+                 innermost=False,
+                 norm_layer=nn.BatchNorm2d,
+                 use_dropout=False):
         super(UnetSkipConnectionBlock, self).__init__()
+        pdb.set_trace()
+
         self.outermost = outermost
         if type(norm_layer) == functools.partial:
             use_bias = norm_layer.func == nn.InstanceNorm2d
         else:
             use_bias = norm_layer == nn.InstanceNorm2d
 
-        dConv = nn.Conv2d(outer_nc, inner_nc, kernel_size=4, stride=2, padding=1, bias=use_bias)
+        dConv = nn.Conv2d(outer_nc,
+                          inner_nc,
+                          kernel_size=4,
+                          stride=2,
+                          padding=1,
+                          bias=use_bias)
         dRelu = nn.LeakyReLU(0.2, True)
         dNorm = norm_layer(inner_nc)
         uRelu = nn.ReLU(True)
         uNorm = norm_layer(outer_nc)
 
         if outermost:
-            uConv = nn.ConvTranspose2d(inner_nc * 2, outer_nc, kernel_size=4, stride=2, padding=1)
+            uConv = nn.ConvTranspose2d(inner_nc * 2,
+                                       outer_nc,
+                                       kernel_size=4,
+                                       stride=2,
+                                       padding=1)
             dModel = [dConv]
             uModel = [uRelu, uConv, nn.Tanh()]
-            model = [
-                dModel,
-                submodule,
-                uModel
-            ]
+            model = [dModel, submodule, uModel]
         # model = [
-        # 	# Down
-        # 	nn.Conv2d( outer_nc, inner_nc, kernel_size=4, stride=2, padding=1, bias=use_bias),
+        #   # Down
+        #   nn.Conv2d( outer_nc, inner_nc, kernel_size=4, stride=2, padding=1, bias=use_bias),
         #
-        # 	submodule,
-        # 	# Up
-        # 	nn.ReLU(True),
-        # 	nn.ConvTranspose2d(inner_nc * 2, outer_nc, kernel_size=4, stride=2, padding=1),
-        # 	nn.Tanh()
+        #   submodule,
+        #   # Up
+        #   nn.ReLU(True),
+        #   nn.ConvTranspose2d(inner_nc * 2, outer_nc, kernel_size=4, stride=2, padding=1),
+        #   nn.Tanh()
         # ]
         elif innermost:
-            uConv = nn.ConvTranspose2d(inner_nc, outer_nc, kernel_size=4, stride=2, padding=1, bias=use_bias)
+            uConv = nn.ConvTranspose2d(inner_nc,
+                                       outer_nc,
+                                       kernel_size=4,
+                                       stride=2,
+                                       padding=1,
+                                       bias=use_bias)
             dModel = [dRelu, dConv]
             uModel = [uRelu, uConv, uNorm]
-            model = [
-                dModel,
-                uModel
-            ]
+            model = [dModel, uModel]
         # model = [
-        # 	# down
-        # 	nn.LeakyReLU(0.2, True),
-        # 	# up
-        # 	nn.ReLU(True),
-        # 	nn.ConvTranspose2d(inner_nc, outer_nc, kernel_size=4, stride=2, padding=1, bias=use_bias),
-        # 	norm_layer(outer_nc)
+        #   # down
+        #   nn.LeakyReLU(0.2, True),
+        #   # up
+        #   nn.ReLU(True),
+        #   nn.ConvTranspose2d(inner_nc, outer_nc, kernel_size=4, stride=2, padding=1, bias=use_bias),
+        #   norm_layer(outer_nc)
         # ]
         else:
-            uConv = nn.ConvTranspose2d(inner_nc * 2, outer_nc, kernel_size=4, stride=2, padding=1, bias=use_bias)
+            uConv = nn.ConvTranspose2d(inner_nc * 2,
+                                       outer_nc,
+                                       kernel_size=4,
+                                       stride=2,
+                                       padding=1,
+                                       bias=use_bias)
             dModel = [dRelu, dConv, dNorm]
             uModel = [uRelu, uConv, uNorm]
 
-            model = [
-                dModel,
-                submodule,
-                uModel
-            ]
+            model = [dModel, submodule, uModel]
             model += [nn.Dropout(0.5)] if use_dropout else []
 
         # if use_dropout:
-        # 	model = down + [submodule] + up + [nn.Dropout(0.5)]
+        #   model = down + [submodule] + up + [nn.Dropout(0.5)]
         # else:
-        # 	model = down + [submodule] + up
+        #   model = down + [submodule] + up
 
         self.model = nn.Sequential(*model)
 
@@ -411,9 +594,26 @@ class UnetSkipConnectionBlock(nn.Module):
 
 # Defines the PatchGAN discriminator with the specified arguments.
 class NLayerDiscriminator(nn.Module):
-    def __init__(self, input_nc, ndf=64, n_layers=3, norm_layer=nn.BatchNorm2d, use_sigmoid=False, gpu_ids=[],
+    def __init__(self,
+                 input_nc,
+                 ndf=64,
+                 n_layers=3,
+                 norm_layer=nn.BatchNorm2d,
+                 use_sigmoid=False,
+                 gpu_ids=[],
                  use_parallel=True):
         super(NLayerDiscriminator, self).__init__()
+        # pdb.set_trace()
+        # (Pdb) a
+        # self = NLayerDiscriminator()
+        # input_nc = 3
+        # ndf = 64
+        # n_layers = 3
+        # norm_layer = functools.partial(<class
+        #     'torch.nn.modules.instancenorm.InstanceNorm2d'>, affine=False, track_running_stats=True)
+        # use_sigmoid = True
+        # gpu_ids = [0]
+        # use_parallel = True
         self.gpu_ids = gpu_ids
         self.use_parallel = use_parallel
 
@@ -433,23 +633,34 @@ class NLayerDiscriminator(nn.Module):
         nf_mult_prev = 1
         for n in range(1, n_layers):
             nf_mult_prev = nf_mult
-            nf_mult = min(2 ** n, 8)
+            nf_mult = min(2**n, 8)
             sequence += [
-                nn.Conv2d(ndf * nf_mult_prev, ndf * nf_mult,
-                          kernel_size=kw, stride=2, padding=padw, bias=use_bias),
+                nn.Conv2d(ndf * nf_mult_prev,
+                          ndf * nf_mult,
+                          kernel_size=kw,
+                          stride=2,
+                          padding=padw,
+                          bias=use_bias),
                 norm_layer(ndf * nf_mult),
                 nn.LeakyReLU(0.2, True)
             ]
 
         nf_mult_prev = nf_mult
-        nf_mult = min(2 ** n_layers, 8)
+        nf_mult = min(2**n_layers, 8)
         sequence += [
-            nn.Conv2d(ndf * nf_mult_prev, ndf * nf_mult, kernel_size=kw, stride=1, padding=padw, bias=use_bias),
+            nn.Conv2d(ndf * nf_mult_prev,
+                      ndf * nf_mult,
+                      kernel_size=kw,
+                      stride=1,
+                      padding=padw,
+                      bias=use_bias),
             norm_layer(ndf * nf_mult),
             nn.LeakyReLU(0.2, True)
         ]
 
-        sequence += [nn.Conv2d(ndf * nf_mult, 1, kernel_size=kw, stride=1, padding=padw)]
+        sequence += [
+            nn.Conv2d(ndf * nf_mult, 1, kernel_size=kw, stride=1, padding=padw)
+        ]
 
         if use_sigmoid:
             sequence += [nn.Sigmoid()]
@@ -457,7 +668,8 @@ class NLayerDiscriminator(nn.Module):
         self.model = nn.Sequential(*sequence)
 
     def forward(self, input):
-        if len(self.gpu_ids) and isinstance(input.data, torch.cuda.FloatTensor) and self.use_parallel:
+        if len(self.gpu_ids) and isinstance(
+                input.data, torch.cuda.FloatTensor) and self.use_parallel:
             return nn.parallel.data_parallel(self.model, input, self.gpu_ids)
         else:
             return self.model(input)
